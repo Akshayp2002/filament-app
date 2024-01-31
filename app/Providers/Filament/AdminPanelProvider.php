@@ -17,6 +17,10 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use lockscreen\FilamentLockscreen\Http\Middleware\Locker;
+use TimWassenburg\FilamentTimesheets\FilamentTimesheetsPlugin;
+use Awcodes\LightSwitch\LightSwitchPlugin;
+use Awcodes\LightSwitch\Enums\Alignment;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -27,6 +31,19 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->plugin(FilamentTimesheetsPlugin::make())
+            ->plugins([
+                LightSwitchPlugin::make()->enabledOn([
+                    'auth.email',
+                    'auth.login',
+                    'auth.password',
+                    'auth.profile',
+                    'auth.register',
+                ])
+                    ->position(Alignment::BottomCenter),
+            ])
+
+
             ->colors([
                 'danger' => Color::Red,
                 'gray' => Color::Slate,
@@ -60,6 +77,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                Locker::class,
             ]);
     }
 }
